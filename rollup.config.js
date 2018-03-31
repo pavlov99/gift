@@ -9,7 +9,7 @@ export default [
     output: {
       file: pkg.browser,
       format: 'umd',
-      name: pkg.name
+      name: 'gift'
     },
     plugins: [
       buble({

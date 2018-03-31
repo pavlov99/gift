@@ -1,5 +1,5 @@
 {
-  "name": "gift",
+  "name": "giftparser",
   "version": "0.0.0",
   "description": "GIFT format parser",
   "main": "dist/gift.cjs.js",
