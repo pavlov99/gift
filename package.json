@@ -10,10 +10,14 @@
   "license": "MIT",
   "bugs": "https://github.com/pavlov99/gift/issues",
   "scripts": {
+    "build": "rollup -c",
     "test": "tape --require reify src/*.spec.js | tap-spec"
   },
   "devDependencies": {
     "reify": "^0.15.1",
+    "rollup": "^0.57.1",
+    "rollup-plugin-buble": "^0.19.2",
+    "rollup-plugin-uglify": "^3.0.0",
     "tap-spec": "^4.1.1",
     "tape": "^4.9.0"
   },
