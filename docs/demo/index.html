@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>GIFT library demo</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.6.2/css/bulma.min.css" integrity="sha256-2k1KVsNPRXxZOsXQ8aqcZ9GOOwmJTMoOB5o5Qp1d6/s=" crossorigin="anonymous" />
+</head>
+<body>
+  <section class="section">
+    <div class="container">
+      <div class="columns">
+        <div class="column">
+          <h2 class="subtitle">Write question in GIFT format:</h2>
+          <textarea id="input" class="textarea" type="text" placeholder="Question" rows="20">
+::Q1:: 1+1=2 {T}
+
+::Q2:: What's between orange and green in the spectrum?
+{ =yellow # right; good! ~red # wrong, it's yellow ~blue # wrong, it's yellow }
+
+::Q3:: Two plus {=two =2} equals four.
+
+::Q4:: Which animal eats which food? { =cat -> cat food =dog -> dog food }
+
+::Q5:: What is a number from 1 to 5? {#3:2}
+
+::Q6:: Two times two equals {~4 ~5 ~four ~six}
+
+::Q7:: When was Ulysses S. Grant born? {#
+  =1822:0      # Correct! Full credit.
+  =%50%1822:2  # He was born in 1822. Half credit for being close.
+}
+
+::Q8:: How are you?
+{}</textarea>
+        </div>
+        <div class="column">
+          <h2 class="subtitle">Users see:</h2>
+          <div id="output" style="white-space: pre-wrap"></div>
+        </div>
+      </div>
+    </div>
+    <div class="container">
+      <h2 class="subtitle">Blocks:</h2>
+      <ol id="blocks" type="1"></ol>
+    <div>
+  </section>
+  <script type="text/javascript" src="https://unpkg.com/giftparser@0.0.0/dist/gift.umd.min.js"></script>
+  <script type="text/javascript" src="./main.js"></script>
+</body>
+</html>
