@@ -11,9 +11,13 @@
   "bugs": "https://github.com/pavlov99/gift/issues",
   "scripts": {
     "build": "rollup -c",
+    "lint": "eslint src/",
     "test": "tape --require reify src/*.spec.js | tap-spec"
   },
   "devDependencies": {
+    "eslint": "^4.19.1",
+    "eslint-config-airbnb-base": "^12.1.0",
+    "eslint-plugin-import": "^2.10.0",
     "reify": "^0.15.1",
     "rollup": "^0.57.1",
     "rollup-plugin-buble": "^0.19.2",
