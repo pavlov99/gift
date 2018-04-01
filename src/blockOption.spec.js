@@ -65,4 +65,22 @@ test('BlockOption.fromString()', (t) => {
     st.equal(option.feedback, 'feedback', 'feedback is parsed')
     st.end()
   })
+
+  t.test('should parse a string with incorrect credit > 100%', (st) => {
+    const option1 = BlockOption.fromString('=%100%value#feedback')
+    st.equal(option1.value, 'value', 'value is parsed')
+    st.equal(option1.credit, 1, 'credit is parsed')
+
+    const option2 = BlockOption.fromString('=%101%value#feedback')
+    st.equal(option2.value, '%101%value', 'value is parsed')
+    st.equal(option2.credit, undefined, 'credit is parsed')
+    st.end()
+  })
+
+  t.test('should parse double feedback # # correctly', (st) => {
+    const option = BlockOption.fromString('value#feedback1 #feedback2')
+    st.equal(option.value, 'value', 'value is parsed')
+    st.equal(option.feedback, 'feedback1 #feedback2', 'feedback is parsed')
+    st.end()
+  })
 })

@@ -1,3 +1,5 @@
+class CreditOutOfRangeError extends Error {}
+
 /** Single option of the block. */
 export default class BlockOption {
   /**
@@ -25,7 +27,7 @@ export default class BlockOption {
         throw new Error(`Invalid credit value '${credit}'. Should be a number.`);
       }
       if (this.credit > 1 || this.credit < -1) {
-        throw new Error(`Invalid credit value '${this.credit}'. Should be in [-1, 1].`);
+        throw new CreditOutOfRangeError(`Invalid credit value '${this.credit}'. Should be in [-1, 1].`);
       }
     } else {
       this.credit = undefined;
@@ -48,12 +50,22 @@ export default class BlockOption {
       const credit = groups[2] ?
         parseFloat(groups[2].slice(1, -1)) / 100 : undefined;
       const feedback = groups[4] ? groups[4].slice(1) : undefined;
-      return new BlockOption({
-        prefix: groups[1],
-        credit,
-        value: groups[3],
-        feedback,
-      });
+      try {
+        return new BlockOption({
+          prefix: groups[1],
+          credit,
+          value: groups[3],
+          feedback,
+        });
+      } catch (e) {
+        if (e instanceof CreditOutOfRangeError) {
+          return new BlockOption({
+            prefix: groups[1],
+            value: groups[2] + groups[3],
+            feedback,
+          });
+        }
+      }
     }
     return undefined;
   }
