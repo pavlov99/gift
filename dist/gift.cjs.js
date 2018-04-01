@@ -5,30 +5,42 @@ Object.defineProperty(exports, '__esModule', { value: true });
 var NUMBER = /([+-]?\d+(\.\d+)?)([eE][+-]?\d+)?/;
 var INTERVAL = new RegExp(NUMBER.source + '((:' + NUMBER.source + ')|(\\.\\.' + NUMBER.source + '))?');
 
-/** Single option of the block.*/
-var BlockOption = function BlockOption (ref) {
+var CreditOutOfRangeError = (function (Error) {
+  function CreditOutOfRangeError () {
+    Error.apply(this, arguments);
+  }if ( Error ) CreditOutOfRangeError.__proto__ = Error;
+  CreditOutOfRangeError.prototype = Object.create( Error && Error.prototype );
+  CreditOutOfRangeError.prototype.constructor = CreditOutOfRangeError;
+
+  
+
+  return CreditOutOfRangeError;
+}(Error));
+
+/** Single option of the block. */
+var BlockOption = function BlockOption(ref) {
   var prefix = ref.prefix;
   var credit = ref.credit;
   var value = ref.value;
   var feedback = ref.feedback;
 
   if (value === undefined) {
-    throw new Error(("Invalid value '" + value + "', should not be empty"))
+    throw new Error(("Invalid value '" + value + "', should not be empty"));
   }
   this.value = value;
 
-  if (!(prefix === undefined || prefix == '=' || prefix == '~')) {
-    throw new Error(("Invalid prefix value: " + prefix + ". Use [undefined, '~', '=']"))
+  if (!(prefix === undefined || prefix === '=' || prefix === '~')) {
+    throw new Error(("Invalid prefix value: " + prefix + ". Use [undefined, '~', '=']"));
   }
   this.prefix = prefix;
 
   if (credit !== undefined) {
-    if (isNaN(parseFloat(credit))) {
-      throw new Error(("Invalid credit value '" + credit + "'. Should be a number."))
-    }
     this.credit = parseFloat(credit);
+    if (!this.credit) {
+      throw new Error(("Invalid credit value '" + credit + "'. Should be a number."));
+    }
     if (this.credit > 1 || this.credit < -1) {
-      throw new Error(("Invalid credit value '" + (this.credit) + "'. Should be in [-1, 1]."))
+      throw new CreditOutOfRangeError(("Invalid credit value '" + (this.credit) + "'. Should be in [-1, 1]."));
     }
   } else {
     this.credit = undefined;
@@ -41,7 +53,7 @@ BlockOption.prototype.toString = function toString () {
   var prefix = this.prefix ? this.prefix : '';
   var credit = this.credit ? ("%" + (this.credit * 100) + "%") : '';
   var feedback = this.feedback ? ("#" + (this.feedback)) : '';
-  return ("" + prefix + credit + (this.value) + feedback)
+  return ("" + prefix + credit + (this.value) + feedback);
 };
 
 BlockOption.fromString = function fromString (option) {
@@ -51,13 +63,24 @@ BlockOption.fromString = function fromString (option) {
     var credit = groups[2] ?
       parseFloat(groups[2].slice(1, -1)) / 100 : undefined;
     var feedback = groups[4] ? groups[4].slice(1) : undefined;
-    return new BlockOption({
-      prefix: groups[1],
-      credit: credit,
-      value: groups[3],
-      feedback: feedback
-    })
+    try {
+      return new BlockOption({
+        prefix: groups[1],
+        credit: credit,
+        value: groups[3],
+        feedback: feedback,
+      });
+    } catch (e) {
+      if (e instanceof CreditOutOfRangeError) {
+        return new BlockOption({
+          prefix: groups[1],
+          value: groups[2] + groups[3],
+          feedback: feedback,
+        });
+      }
+    }
   }
+  return undefined;
 };
 
 /* GITF Block */
