@@ -1,5 +1,7 @@
+import Block from './block';
+
 export default class Question {
-  static splitBlocks (question) {
+  static splitBlocks(question) {
     // Apply simple regexps first and then if candidate is not qualified - merge
     // it with text on the left and right.
     // NOTES: (Negative) lookbehind is not supported by JavaScript yet. It is a
@@ -10,6 +12,19 @@ export default class Question {
     // return question.split(/(?<!\\)({[^}]*(?<!\\)})/g).filter(x => x)
     return question
       .split(/({[^}]*})/g)
-      .filter(x => x)
+      .filter(x => x);
+  }
+
+  static mask(question) {
+    return this.splitBlocks(question)
+      .map((blockText) => {
+        try {
+          return Block.fromString(blockText).toMaskedString();
+        } catch (err) {
+          // I want application to not crush, but don't care about the message
+        }
+        return blockText;
+      })
+      .join('');
   }
 }

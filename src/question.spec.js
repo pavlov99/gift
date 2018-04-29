@@ -35,4 +35,10 @@ test('splitBlocks', (t) => {
     })
     st.end()
   })
+
+  t.test('should mask question', (st) => {
+    const question = 'What is 1 + 1? {~1 =2 =3}'
+    st.equal(Question.mask(question), 'What is 1 + 1? {=1 =2 =3}')
+    st.end()
+  })
 })
