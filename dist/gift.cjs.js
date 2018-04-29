@@ -256,7 +256,20 @@ Question.splitBlocks = function splitBlocks (question) {
   // return question.split(/(?<!\\)({[^}]*(?<!\\)})/g).filter(x => x)
   return question
     .split(/({[^}]*})/g)
-    .filter(function (x) { return x; })
+    .filter(function (x) { return x; });
+};
+
+Question.mask = function mask (question) {
+  return this.splitBlocks(question)
+    .map(function (blockText) {
+      try {
+        return Block.fromString(blockText).toMaskedString();
+      } catch (err) {
+        // I want application to not crush, but don't care about the message
+      }
+      return blockText;
+    })
+    .join('');
 };
 
 exports.Block = Block;
