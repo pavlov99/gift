@@ -115,7 +115,7 @@ export default class Block {
   }
 
   static getType (block) {
-    const obj = this.fromString(block)
+    const obj = Block.fromString(block)
     if (obj) {
       return obj.type
     }
@@ -126,7 +126,22 @@ export default class Block {
     if (!((block.charAt(0) == '{') && (block.charAt(block.length - 1) == '}'))) {
       return false
     }
-    return true
+
+    try {
+      Block.fromString(block);
+    } catch (e) {
+      return false;
+    }
+    return true;
+  }
+
+  static isValidMasked (block) {
+    try {
+      Block.fromMaskedString(block);
+    } catch (e) {
+      return false;
+    }
+    return true;
   }
 
   toString() {

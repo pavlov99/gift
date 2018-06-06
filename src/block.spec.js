@@ -154,3 +154,21 @@ test('getType', (t) => {
     st.end()
   })
 })
+
+test('isValidMasked', (t) => {
+  t.test('should detect valid masked question', (st) => {
+    st.ok(Block.isValidMasked('{}'))
+    st.ok(Block.isValidMasked('{#}'))
+    st.ok(Block.isValidMasked('{=}'))
+    st.ok(Block.isValidMasked('{~}'))
+    st.ok(Block.isValidMasked('{=a =b}'))
+    st.ok(Block.isValidMasked('{~a ~b}'))
+    st.end()
+  })
+
+  t.test('should detect invalid masked question', (st) => {
+    st.false(Block.isValidMasked('{=a ~b}'))
+    st.false(Block.isValidMasked('{ some text }'))
+    st.end()
+  })
+})
