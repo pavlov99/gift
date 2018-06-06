@@ -128,7 +128,10 @@ export default class Block {
     }
 
     try {
-      Block.fromString(block);
+      const b = Block.fromString(block);
+      if (b === undefined) {
+        return false
+      }
     } catch (e) {
       return false;
     }
@@ -137,7 +140,10 @@ export default class Block {
 
   static isValidMasked (block) {
     try {
-      Block.fromMaskedString(block);
+      const b = Block.fromMaskedString(block);
+      if (b === undefined) {
+        return false
+      }
     } catch (e) {
       return false;
     }
