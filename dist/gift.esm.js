@@ -191,7 +191,7 @@ Block.fromMaskedString = function fromMaskedString (block) {
 };
 
 Block.getType = function getType (block) {
-  var obj = this.fromString(block);
+  var obj = Block.fromString(block);
   if (obj) {
     return obj.type
   }
@@ -202,7 +202,28 @@ Block.isValid = function isValid (block) {
   if (!((block.charAt(0) == '{') && (block.charAt(block.length - 1) == '}'))) {
     return false
   }
-  return true
+
+  try {
+    var b = Block.fromString(block);
+    if (b === undefined) {
+      return false
+    }
+  } catch (e) {
+    return false;
+  }
+  return true;
+};
+
+Block.isValidMasked = function isValidMasked (block) {
+  try {
+    var b = Block.fromMaskedString(block);
+    if (b === undefined) {
+      return false
+    }
+  } catch (e) {
+    return false;
+  }
+  return true;
 };
 
 Block.prototype.toString = function toString () {
@@ -241,7 +262,7 @@ Block.TYPES = Object.freeze({
 
 var Question = function Question () {};
 
-Question.splitBlocks = function splitBlocks (question) {
+Question.splitBlocksWithPredicate = function splitBlocksWithPredicate (question, predicate) {
   // Apply simple regexps first and then if candidate is not qualified - merge
   // it with text on the left and right.
   // NOTES: (Negative) lookbehind is not supported by JavaScript yet. It is a
@@ -250,9 +271,38 @@ Question.splitBlocks = function splitBlocks (question) {
   // There is a possible way to replace lookabehind wiht lookahead on the
   // reversed string: https://stackoverflow.com/questions/641407/javascript-negative-lookbehind-equivalent#answer-11347100
   // return question.split(/(?<!\\)({[^}]*(?<!\\)})/g).filter(x => x)
-  return question
+
+  var blocks = [];
+  var isValid = true;
+
+  question
     .split(/({[^}]*})/g)
-    .filter(function (x) { return x; });
+    .filter(function (x) { return x; })
+    .forEach(function (candidate) {
+      // If previous block is valid OR this is the first block, append candidate
+      if (isValid) {
+        blocks.push(candidate);
+        isValid = predicate(candidate);
+      } else if (predicate(candidate)) {
+        // Candidate is valid
+        blocks.push(candidate);
+        isValid = true;
+      } else {
+        // Previous block is not GIFT and current is also not GIFT.
+        // If both are GIFT - no need to concatenate as that is valid.
+        blocks.push(blocks.pop().concat(candidate));
+      }
+    });
+
+  return blocks;
+};
+
+Question.splitBlocks = function splitBlocks (question) {
+  return this.splitBlocksWithPredicate(question, Block.isValid);
+};
+
+Question.splitMaskedBlocks = function splitMaskedBlocks (question) {
+  return this.splitBlocksWithPredicate(question, Block.isValidMasked);
 };
 
 Question.mask = function mask (question) {
