@@ -22,6 +22,13 @@ test('splitBlocks', (t) => {
     st.end()
   })
 
+  t.test('should not split source code with {} into blocks', (st) => {
+    const s = "```javascript\nfunction x() {\n  return '';\n}\n``` Is this code correct? {=yes ~no}";
+    const blocks = Question.splitBlocks(s);
+    st.equal(blocks.length, 2, 'should split into 2 blocks');
+    st.end();
+  })
+
   t.skip('should split escaped string into block chunks', (st) => {
     const questions = [
       ['Escaped opened \\{'],
