@@ -172,3 +172,28 @@ test('isValidMasked', (t) => {
     st.end()
   })
 })
+
+test('grade', (t) => {
+  t.test('should recognize correct answer', (st) => {
+    st.equal(Block.fromString('{=yes ~no}').grade('yes'), 1)
+    st.end()
+  })
+
+  t.test('should recognize incorrect answer', (st) => {
+    st.equal(Block.fromString('{=yes ~no}').grade('no'), 0)
+    st.equal(Block.fromString('{=yes ~no}').grade('maybe'), 0)
+    st.end()
+  })
+})
+
+test('getFeedback', (t) => {
+  t.test('should get feedback', (st) => {
+    const block = Block.fromString('{=yes #correct ~no #incorrect ~dont know}');
+    console.log(block.options)
+    st.equal(block.getFeedback('yes'), 'correct')
+    st.equal(block.getFeedback('no'), 'incorrect')
+    st.equal(block.getFeedback('dont know'), undefined)
+    st.equal(block.getFeedback('not option'), undefined)
+    st.end()
+  })
+})

@@ -172,7 +172,44 @@ export default class Block {
     }
   }
 
-  grade (answer) {}
+  /**
+   *
+   * @param {(string|string[])} answer answer to the question. Array in case
+   *   of checkbox question.
+   * @returns {number} grade, typically 0 or 1. Could be adjusted via
+   *   percentage %n% option modifier.
+   */
+  grade (answer) {
+    switch(this.type) {
+      case Block.TYPES.RADIO:
+        const [ option ] = this.options.filter(o => o.value.trim() === answer)
+        if (option) {
+          return option.credit || (option.prefix === '=' ? 1 : 0);
+        }
+        return 0;
+      default:
+        throw Error(`Grading is not implemented for type ${this.type}`)
+    }
+  }
+
+  /**
+   *
+   * @param {(string|string[]))} answer answer to the question. Array in case
+   *   of checkbox question.
+   * @returns {string?} feedback if exists. Else undefined.
+   */
+  getFeedback (answer) {
+    switch(this.type) {
+      case Block.TYPES.RADIO:
+        const [ option ] = this.options.filter(o => o.value.trim() === answer)
+        if (option) {
+          return option.feedback;
+        }
+        return;
+      default:
+        throw Error(`Grading is not implemented for type ${this.type}`)
+    }
+  }
 }
 
 Block.TYPES = Object.freeze({
