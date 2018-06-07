@@ -59,7 +59,7 @@ export default class Block {
         throw new Error(`Invalid number block: ${block}`)
       }
     } else {
-      const options = this.splitOptions(body).map(o => BlockOption.fromString(o))
+      const options = Block.splitOptions(body).map(o => BlockOption.fromString(o))
 
       if (options.every(o => o.prefix == '~')) {
         return new Block({
@@ -103,7 +103,7 @@ export default class Block {
     } else if (body === '=') {
       return new Block({ type: Block.TYPES.INPUT })
     } else {
-      const options = this.splitOptions(body).map(o => BlockOption.fromString(o))
+      const options = Block.splitOptions(body).map(o => BlockOption.fromString(o))
       if (options.every(o => o.prefix == '~')) {
         return new Block({ type: Block.TYPES.CHECKBOX, options })
       } else if (options.every(o => o.prefix == '=')) {

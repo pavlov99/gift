@@ -37,15 +37,15 @@ export default class Question {
   }
 
   static splitBlocks(question) {
-    return this.splitBlocksWithPredicate(question, Block.isValid);
+    return Question.splitBlocksWithPredicate(question, Block.isValid);
   }
 
   static splitMaskedBlocks(question) {
-    return this.splitBlocksWithPredicate(question, Block.isValidMasked);
+    return Question.splitBlocksWithPredicate(question, Block.isValidMasked);
   }
 
   static mask(question) {
-    return this.splitBlocks(question)
+    return Question.splitBlocks(question)
       .map((blockText) => {
         try {
           return Block.fromString(blockText).toMaskedString();
