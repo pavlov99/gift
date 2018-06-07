@@ -1,5 +1,5 @@
-import * as regexp from './regexp'
-import BlockOption from './blockOption'
+import * as regexp from './regexp';
+import BlockOption from './blockOption';
 
 
 /* GITF Block */
@@ -7,12 +7,12 @@ export default class Block {
   /**
    * @param {string} type
    */
-  constructor ({ type, options = [] }) {
-    this.type = type
-    this.options = options
+  constructor({ type, options = [] }) {
+    this.type = type;
+    this.options = options;
   }
 
-  static splitOptions (block) {
+  static splitOptions(block) {
     // NOTE: do not remember option value, a.k.a (?:) group
     // In every option match either special character [=,~,#,{,}] or not option
     // start
@@ -22,115 +22,112 @@ export default class Block {
       .trim()
       .split(/([=~](?:(?:\\[=~#{}])|(?:[^=~]))+)/g)
       .filter(x => x)
-      .map(x => x.trim())
+      .map(x => x.trim());
   }
 
-  static fromString (block) {
-    if (!((block.charAt(0) == '{') && (block.charAt(block.length - 1) == '}'))) {
-      throw new Error(`Block should start with '{' and end with '}': ${block}`)
+  static fromString(block) {
+    if (!((block.charAt(0) === '{') && (block.charAt(block.length - 1) === '}'))) {
+      throw new Error(`Block should start with '{' and end with '}': ${block}`);
     }
-    const body = block.slice(1, -1)
+    const body = block.slice(1, -1);
 
     // Apply simple rules and regular expressions first (easier and handle multiple cases)
     // Then attempt to parse candidates into blocks.
-    const OPTION_INTERVAL = new RegExp('[=~](%\\d{2}%)?' + regexp.INTERVAL.source + '\\s*(#[^=~]*)?')
-    const BLOCK_NUMBER = new RegExp(`^((${regexp.INTERVAL.source})|((\\s*${OPTION_INTERVAL.source})+))$`)
+    const OPTION_INTERVAL = new RegExp(`[=~](%\\d{2}%)?${regexp.INTERVAL.source}\\s*(#[^=~]*)?`);
+    const BLOCK_NUMBER = new RegExp(`^((${regexp.INTERVAL.source})|((\\s*${OPTION_INTERVAL.source})+))$`);
 
     if (/^[\s]*$/.test(body)) {
       return new Block({
         type: Block.TYPES.TEXT,
-        options: []
-      })
+        options: [],
+      });
     } else if (/^(TRUE|FALSE|T|F)$/.test(body)) {
       return new Block({
         type: Block.TYPES.BOOLEAN,
         options: [
-          new BlockOption({ value: /^(TRUE|T)$/.test(body) })
-        ]
-      })
-    } else if (body.charAt(0) == '#') {
+          new BlockOption({ value: /^(TRUE|T)$/.test(body) }),
+        ],
+      });
+    } else if (body.charAt(0) === '#') {
       // body has at least one character, otherwise it would be matched in TEXT block.
       if (BLOCK_NUMBER.test(body.slice(1))) {
         return new Block({
           type: Block.TYPES.NUMBER,
-          options: [ BlockOption.fromString(body.slice(1)) ]
-        })
-      } else {
-        throw new Error(`Invalid number block: ${block}`)
+          options: [BlockOption.fromString(body.slice(1))],
+        });
       }
+      throw new Error(`Invalid number block: ${block}`);
     } else {
-      const options = Block.splitOptions(body).map(o => BlockOption.fromString(o))
+      const options = Block.splitOptions(body).map(o => BlockOption.fromString(o));
 
-      if (options.every(o => o.prefix == '~')) {
+      if (options.every(o => o.prefix === '~')) {
         return new Block({
           type: Block.TYPES.CHECKBOX,
-          options
-        })
-      } else if (options.every(o => o.prefix == '=')) {
+          options,
+        });
+      } else if (options.every(o => o.prefix === '=')) {
         if (options.every(o => o.value.includes('->'))) {
           return new Block({
             type: Block.TYPES.MATCHING,
-            options
-          })
+            options,
+          });
         }
         return new Block({
           type: Block.TYPES.INPUT,
-          options: options
-        })
-      } else if (options.every(o => o.prefix == '~' || o.prefix == '=')) {
+          options,
+        });
+      } else if (options.every(o => o.prefix === '~' || o.prefix === '=')) {
         // candidate for radio button
         // TODO: add tests for incorrect radio options a.k.a multiple ~ =
         // TODO: add tests for options not starting with = or ~.
         return new Block({
           type: Block.TYPES.RADIO,
-          options
-        })
+          options,
+        });
       }
     }
   }
 
-  static fromMaskedString (block) {
-    if (!((block.charAt(0) == '{') && (block.charAt(block.length - 1) == '}'))) {
-      throw new Error(`Block should start with '{' and end with '}': ${block}`)
+  static fromMaskedString(block) {
+    if (!((block.charAt(0) === '{') && (block.charAt(block.length - 1) === '}'))) {
+      throw new Error(`Block should start with '{' and end with '}': ${block}`);
     }
-    const body = block.slice(1, -1)
+    const body = block.slice(1, -1);
     if (body === '') {
-      return new Block({ type: Block.TYPES.TEXT })
+      return new Block({ type: Block.TYPES.TEXT });
     } else if (body === '~') {
-      return new Block({ type: Block.TYPES.BOOLEAN })
+      return new Block({ type: Block.TYPES.BOOLEAN });
     } else if (body === '#') {
-      return new Block({ type: Block.TYPES.NUMBER })
+      return new Block({ type: Block.TYPES.NUMBER });
     } else if (body === '=') {
-      return new Block({ type: Block.TYPES.INPUT })
-    } else {
-      const options = Block.splitOptions(body).map(o => BlockOption.fromString(o))
-      if (options.every(o => o.prefix == '~')) {
-        return new Block({ type: Block.TYPES.CHECKBOX, options })
-      } else if (options.every(o => o.prefix == '=')) {
-        return new Block({ type: Block.TYPES.RADIO, options })
-      } else {
-        throw Error(`Could not parse masked block options`)
-      }
+      return new Block({ type: Block.TYPES.INPUT });
     }
+    const options = Block.splitOptions(body).map(o => BlockOption.fromString(o));
+    if (options.every(o => o.prefix === '~')) {
+      return new Block({ type: Block.TYPES.CHECKBOX, options });
+    } else if (options.every(o => o.prefix === '=')) {
+      return new Block({ type: Block.TYPES.RADIO, options });
+    }
+    throw Error('Could not parse masked block options');
   }
 
-  static getType (block) {
-    const obj = Block.fromString(block)
+  static getType(block) {
+    const obj = Block.fromString(block);
     if (obj) {
-      return obj.type
+      return obj.type;
     }
   }
 
   // Is valid = type could be detected.
-  static isValid (block) {
-    if (!((block.charAt(0) == '{') && (block.charAt(block.length - 1) == '}'))) {
-      return false
+  static isValid(block) {
+    if (!((block.charAt(0) === '{') && (block.charAt(block.length - 1) === '}'))) {
+      return false;
     }
 
     try {
       const b = Block.fromString(block);
       if (b === undefined) {
-        return false
+        return false;
       }
     } catch (e) {
       return false;
@@ -138,11 +135,11 @@ export default class Block {
     return true;
   }
 
-  static isValidMasked (block) {
+  static isValidMasked(block) {
     try {
       const b = Block.fromMaskedString(block);
       if (b === undefined) {
-        return false
+        return false;
       }
     } catch (e) {
       return false;
@@ -151,24 +148,28 @@ export default class Block {
   }
 
   toString() {
+    switch (this.type) {
+      default:
+        throw Error(`NotImplemented for type ${this.type}`);
+    }
   }
 
   toMaskedString() {
-    switch(this.type) {
+    switch (this.type) {
       case Block.TYPES.TEXT:
-        return '{}'
+        return '{}';
       case Block.TYPES.BOOLEAN:
-        return '{~}'
+        return '{~}';
       case Block.TYPES.NUMBER:
-        return '{#}'
+        return '{#}';
       case Block.TYPES.INPUT:
-        return '{=}'
+        return '{=}';
       case Block.TYPES.RADIO:
-        return `{${this.options.map(o => `=${o.value}`).join(' ')}}`
+        return `{${this.options.map(o => `=${o.value}`).join(' ')}}`;
       case Block.TYPES.CHECKBOX:
-        return `{${this.options.map(o => `~${o.value}`).join(' ')}}`
+        return `{${this.options.map(o => `~${o.value}`).join(' ')}}`;
       default:
-       throw Error(`Could not mask block. Unsupported type ${this.type}`)
+        throw Error(`Could not mask block. Unsupported type ${this.type}`);
     }
   }
 
@@ -179,16 +180,16 @@ export default class Block {
    * @returns {number} grade, typically 0 or 1. Could be adjusted via
    *   percentage %n% option modifier.
    */
-  grade (answer) {
-    switch(this.type) {
+  grade(answer) {
+    switch (this.type) {
       case Block.TYPES.RADIO:
-        const [ option ] = this.options.filter(o => o.value.trim() === answer)
+        const [option] = this.options.filter(o => o.value.trim() === answer);
         if (option) {
           return option.credit || (option.prefix === '=' ? 1 : 0);
         }
         return 0;
       default:
-        throw Error(`Grading is not implemented for type ${this.type}`)
+        throw Error(`Grading is not implemented for type ${this.type}`);
     }
   }
 
@@ -198,16 +199,16 @@ export default class Block {
    *   of checkbox question.
    * @returns {string?} feedback if exists. Else undefined.
    */
-  getFeedback (answer) {
-    switch(this.type) {
+  getFeedback(answer) {
+    switch (this.type) {
       case Block.TYPES.RADIO:
-        const [ option ] = this.options.filter(o => o.value.trim() === answer)
+        const [option] = this.options.filter(o => o.value.trim() === answer);
         if (option) {
           return option.feedback;
         }
-        return;
+        return undefined;
       default:
-        throw Error(`Grading is not implemented for type ${this.type}`)
+        throw Error(`Grading is not implemented for type ${this.type}`);
     }
   }
 }
@@ -220,4 +221,4 @@ Block.TYPES = Object.freeze({
   RADIO: 'RADIO',
   CHECKBOX: 'CHECKBOX',
   TEXT: 'TEXT',
-})
+});
