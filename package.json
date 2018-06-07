@@ -1,6 +1,6 @@
 {
   "name": "giftparser",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "GIFT format parser",
   "main": "dist/gift.cjs.js",
   "module": "dist/gift.esm.js",

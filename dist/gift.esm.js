@@ -80,7 +80,7 @@ BlockOption.fromString = function fromString (option) {
 };
 
 /* GITF Block */
-var Block = function Block (ref) {
+var Block = function Block(ref) {
   var type = ref.type;
   var options = ref.options; if ( options === void 0 ) options = [];
 
@@ -98,115 +98,111 @@ Block.splitOptions = function splitOptions (block) {
     .trim()
     .split(/([=~](?:(?:\\[=~#{}])|(?:[^=~]))+)/g)
     .filter(function (x) { return x; })
-    .map(function (x) { return x.trim(); })
+    .map(function (x) { return x.trim(); });
 };
 
 Block.fromString = function fromString (block) {
-  if (!((block.charAt(0) == '{') && (block.charAt(block.length - 1) == '}'))) {
-    throw new Error(("Block should start with '{' and end with '}': " + block))
+  if (!((block.charAt(0) === '{') && (block.charAt(block.length - 1) === '}'))) {
+    throw new Error(("Block should start with '{' and end with '}': " + block));
   }
   var body = block.slice(1, -1);
 
   // Apply simple rules and regular expressions first (easier and handle multiple cases)
   // Then attempt to parse candidates into blocks.
-  var OPTION_INTERVAL = new RegExp('[=~](%\\d{2}%)?' + INTERVAL.source + '\\s*(#[^=~]*)?');
+  var OPTION_INTERVAL = new RegExp(("[=~](%\\d{2}%)?" + (INTERVAL.source) + "\\s*(#[^=~]*)?"));
   var BLOCK_NUMBER = new RegExp(("^((" + (INTERVAL.source) + ")|((\\s*" + (OPTION_INTERVAL.source) + ")+))$"));
 
   if (/^[\s]*$/.test(body)) {
     return new Block({
       type: Block.TYPES.TEXT,
-      options: []
-    })
+      options: [],
+    });
   } else if (/^(TRUE|FALSE|T|F)$/.test(body)) {
     return new Block({
       type: Block.TYPES.BOOLEAN,
       options: [
-        new BlockOption({ value: /^(TRUE|T)$/.test(body) })
-      ]
-    })
-  } else if (body.charAt(0) == '#') {
+        new BlockOption({ value: /^(TRUE|T)$/.test(body) }) ],
+    });
+  } else if (body.charAt(0) === '#') {
     // body has at least one character, otherwise it would be matched in TEXT block.
     if (BLOCK_NUMBER.test(body.slice(1))) {
       return new Block({
         type: Block.TYPES.NUMBER,
-        options: [ BlockOption.fromString(body.slice(1)) ]
-      })
-    } else {
-      throw new Error(("Invalid number block: " + block))
+        options: [BlockOption.fromString(body.slice(1))],
+      });
     }
+    throw new Error(("Invalid number block: " + block));
   } else {
-    var options = this.splitOptions(body).map(function (o) { return BlockOption.fromString(o); });
+    var options = Block.splitOptions(body).map(function (o) { return BlockOption.fromString(o); });
 
-    if (options.every(function (o) { return o.prefix == '~'; })) {
+    if (options.every(function (o) { return o.prefix === '~'; })) {
       return new Block({
         type: Block.TYPES.CHECKBOX,
-        options: options
-      })
-    } else if (options.every(function (o) { return o.prefix == '='; })) {
+        options: options,
+      });
+    } else if (options.every(function (o) { return o.prefix === '='; })) {
       if (options.every(function (o) { return o.value.includes('->'); })) {
         return new Block({
           type: Block.TYPES.MATCHING,
-          options: options
-        })
+          options: options,
+        });
       }
       return new Block({
         type: Block.TYPES.INPUT,
-        options: options
-      })
-    } else if (options.every(function (o) { return o.prefix == '~' || o.prefix == '='; })) {
+        options: options,
+      });
+    } else if (options.every(function (o) { return o.prefix === '~' || o.prefix === '='; })) {
       // candidate for radio button
       // TODO: add tests for incorrect radio options a.k.a multiple ~ =
       // TODO: add tests for options not starting with = or ~.
       return new Block({
         type: Block.TYPES.RADIO,
-        options: options
-      })
+        options: options,
+      });
     }
   }
 };
 
 Block.fromMaskedString = function fromMaskedString (block) {
-  if (!((block.charAt(0) == '{') && (block.charAt(block.length - 1) == '}'))) {
-    throw new Error(("Block should start with '{' and end with '}': " + block))
+  if (!((block.charAt(0) === '{') && (block.charAt(block.length - 1) === '}'))) {
+    throw new Error(("Block should start with '{' and end with '}': " + block));
   }
   var body = block.slice(1, -1);
   if (body === '') {
-    return new Block({ type: Block.TYPES.TEXT })
+    return new Block({ type: Block.TYPES.TEXT });
   } else if (body === '~') {
-    return new Block({ type: Block.TYPES.BOOLEAN })
+    return new Block({ type: Block.TYPES.BOOLEAN });
   } else if (body === '#') {
-    return new Block({ type: Block.TYPES.NUMBER })
+    return new Block({ type: Block.TYPES.NUMBER });
   } else if (body === '=') {
-    return new Block({ type: Block.TYPES.INPUT })
-  } else {
-    var options = this.splitOptions(body).map(function (o) { return BlockOption.fromString(o); });
-    if (options.every(function (o) { return o.prefix == '~'; })) {
-      return new Block({ type: Block.TYPES.CHECKBOX, options: options })
-    } else if (options.every(function (o) { return o.prefix == '='; })) {
-      return new Block({ type: Block.TYPES.RADIO, options: options })
-    } else {
-      throw Error("Could not parse masked block options")
-    }
+    return new Block({ type: Block.TYPES.INPUT });
   }
+  var options = Block.splitOptions(body).map(function (o) { return BlockOption.fromString(o); });
+  if (options.every(function (o) { return o.prefix === '~'; })) {
+    return new Block({ type: Block.TYPES.CHECKBOX, options: options });
+  } else if (options.every(function (o) { return o.prefix === '='; })) {
+    return new Block({ type: Block.TYPES.RADIO, options: options });
+  }
+  throw Error('Could not parse masked block options');
 };
 
 Block.getType = function getType (block) {
   var obj = Block.fromString(block);
   if (obj) {
-    return obj.type
+    return obj.type;
   }
 };
 
 // Is valid = type could be detected.
 Block.isValid = function isValid (block) {
-  if (!((block.charAt(0) == '{') && (block.charAt(block.length - 1) == '}'))) {
-    return false
+  if (!((block.charAt(0) === '{') && (block.charAt(block.length - 1) === '}'))) {
+    return false;
   }
 
   try {
     var b = Block.fromString(block);
     if (b === undefined) {
-      return false
+      return false;
     }
   } catch (e) {
     return false;
@@ -218,7 +214,7 @@ Block.isValidMasked = function isValidMasked (block) {
   try {
     var b = Block.fromMaskedString(block);
     if (b === undefined) {
-      return false
+      return false;
     }
   } catch (e) {
     return false;
@@ -227,28 +223,71 @@ Block.isValidMasked = function isValidMasked (block) {
 };
 
 Block.prototype.toString = function toString () {
-};
-
-Block.prototype.toMaskedString = function toMaskedString () {
-  switch(this.type) {
-    case Block.TYPES.TEXT:
-      return '{}'
-    case Block.TYPES.BOOLEAN:
-      return '{~}'
-    case Block.TYPES.NUMBER:
-      return '{#}'
-    case Block.TYPES.INPUT:
-      return '{=}'
-    case Block.TYPES.RADIO:
-      return ("{" + (this.options.map(function (o) { return ("=" + (o.value)); }).join(' ')) + "}")
-    case Block.TYPES.CHECKBOX:
-      return ("{" + (this.options.map(function (o) { return ("~" + (o.value)); }).join(' ')) + "}")
+  switch (this.type) {
     default:
-     throw Error(("Could not mask block. Unsupported type " + (this.type)))
+      throw Error(("NotImplemented for type " + (this.type)));
   }
 };
 
-Block.prototype.grade = function grade (answer) {};
+Block.prototype.toMaskedString = function toMaskedString () {
+  switch (this.type) {
+    case Block.TYPES.TEXT:
+      return '{}';
+    case Block.TYPES.BOOLEAN:
+      return '{~}';
+    case Block.TYPES.NUMBER:
+      return '{#}';
+    case Block.TYPES.INPUT:
+      return '{=}';
+    case Block.TYPES.RADIO:
+      return ("{" + (this.options.map(function (o) { return ("=" + (o.value)); }).join(' ')) + "}");
+    case Block.TYPES.CHECKBOX:
+      return ("{" + (this.options.map(function (o) { return ("~" + (o.value)); }).join(' ')) + "}");
+    default:
+      throw Error(("Could not mask block. Unsupported type " + (this.type)));
+  }
+};
+
+/**
+ *
+ * @param {(string|string[])} answer answer to the question. Array in case
+ * of checkbox question.
+ * @returns {number} grade, typically 0 or 1. Could be adjusted via
+ * percentage %n% option modifier.
+ */
+Block.prototype.grade = function grade (answer) {
+  switch (this.type) {
+    case Block.TYPES.RADIO:
+      var ref = this.options.filter(function (o) { return o.value.trim() === answer; });
+    var option = ref[0];
+      if (option) {
+        return option.credit || (option.prefix === '=' ? 1 : 0);
+      }
+      return 0;
+    default:
+      throw Error(("Grading is not implemented for type " + (this.type)));
+  }
+};
+
+/**
+ *
+ * @param {(string|string[]))} answer answer to the question. Array in case
+ * of checkbox question.
+ * @returns {string?} feedback if exists. Else undefined.
+ */
+Block.prototype.getFeedback = function getFeedback (answer) {
+  switch (this.type) {
+    case Block.TYPES.RADIO:
+      var ref = this.options.filter(function (o) { return o.value.trim() === answer; });
+    var option = ref[0];
+      if (option) {
+        return option.feedback;
+      }
+      return undefined;
+    default:
+      throw Error(("Grading is not implemented for type " + (this.type)));
+  }
+};
 
 Block.TYPES = Object.freeze({
   BOOLEAN: 'BOOLEAN',
@@ -298,15 +337,15 @@ Question.splitBlocksWithPredicate = function splitBlocksWithPredicate (question,
 };
 
 Question.splitBlocks = function splitBlocks (question) {
-  return this.splitBlocksWithPredicate(question, Block.isValid);
+  return Question.splitBlocksWithPredicate(question, Block.isValid);
 };
 
 Question.splitMaskedBlocks = function splitMaskedBlocks (question) {
-  return this.splitBlocksWithPredicate(question, Block.isValidMasked);
+  return Question.splitBlocksWithPredicate(question, Block.isValidMasked);
 };
 
 Question.mask = function mask (question) {
-  return this.splitBlocks(question)
+  return Question.splitBlocks(question)
     .map(function (blockText) {
       try {
         return Block.fromString(blockText).toMaskedString();
