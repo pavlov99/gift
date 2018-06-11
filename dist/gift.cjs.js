@@ -3,7 +3,7 @@
 Object.defineProperty(exports, '__esModule', { value: true });
 
 var NUMBER = /([+-]?\d+(\.\d+)?)([eE][+-]?\d+)?/;
-var INTERVAL = new RegExp(NUMBER.source + '((:' + NUMBER.source + ')|(\\.\\.' + NUMBER.source + '))?');
+var INTERVAL = new RegExp(((NUMBER.source) + "((:" + (NUMBER.source) + ")|(\\.\\." + (NUMBER.source) + "))?"));
 
 var CreditOutOfRangeError = (function (Error) {
   function CreditOutOfRangeError () {
@@ -130,38 +130,44 @@ Block.fromString = function fromString (block) {
   } else if (body.charAt(0) === '#') {
     // body has at least one character, otherwise it would be matched in TEXT block.
     if (BLOCK_NUMBER.test(body.slice(1))) {
+      var options = body.slice(1)
+        .split('=')
+        .map(function (s) { return s.trim(); })
+        .filter(Boolean)
+        .map(function (o) { return BlockOption.fromString(("=" + o)); });
+
       return new Block({
         type: Block.TYPES.NUMBER,
-        options: [BlockOption.fromString(body.slice(1))],
+        options: options,
       });
     }
     throw new Error(("Invalid number block: " + block));
   } else {
-    var options = Block.splitOptions(body).map(function (o) { return BlockOption.fromString(o); });
+    var options$1 = Block.splitOptions(body).map(function (o) { return BlockOption.fromString(o); });
 
-    if (options.every(function (o) { return o.prefix === '~'; })) {
+    if (options$1.every(function (o) { return o.prefix === '~'; })) {
       return new Block({
         type: Block.TYPES.CHECKBOX,
-        options: options,
+        options: options$1,
       });
-    } else if (options.every(function (o) { return o.prefix === '='; })) {
-      if (options.every(function (o) { return o.value.includes('->'); })) {
+    } else if (options$1.every(function (o) { return o.prefix === '='; })) {
+      if (options$1.every(function (o) { return o.value.includes('->'); })) {
         return new Block({
           type: Block.TYPES.MATCHING,
-          options: options,
+          options: options$1,
         });
       }
       return new Block({
         type: Block.TYPES.INPUT,
-        options: options,
+        options: options$1,
       });
-    } else if (options.every(function (o) { return o.prefix === '~' || o.prefix === '='; })) {
+    } else if (options$1.every(function (o) { return o.prefix === '~' || o.prefix === '='; })) {
       // candidate for radio button
       // TODO: add tests for incorrect radio options a.k.a multiple ~ =
       // TODO: add tests for options not starting with = or ~.
       return new Block({
         type: Block.TYPES.RADIO,
-        options: options,
+        options: options$1,
       });
     }
   }
@@ -268,6 +274,38 @@ Block.prototype.grade = function grade (answer) {
         return option.credit || (option.prefix === '=' ? 1 : 0);
       }
       return 0;
+    case Block.TYPES.CHECKBOX:
+      // NOTE: answer should be an array
+      var optionCredits = new Map(this.options.map(function (o) { return [o.value, o.credit]; }));
+      var answerScores = answer.map(function (a) { return optionCredits.get(a) || 0; });
+      return answerScores.reduce(function (total, val) { return total + val; }, 0);
+    case Block.TYPES.BOOLEAN:
+      return this.options[0].value ^ Boolean(answer) ? 0 : 1;
+    case Block.TYPES.TEXT:
+      return undefined;
+    case Block.TYPES.INPUT:
+      return this.options.some(function (o) { return o.value.trim() === answer; }) ? 1 : 0;
+    case Block.TYPES.NUMBER:
+      answer = Number(answer);
+      var optionScores = this.options.map(function (o) {
+        var credit = o.credit; if ( credit === void 0 ) credit = 1;
+          var value = o.value; // If credit is undefined, e.g. "=", set it to 1
+        if (value.includes(':')) {
+          // tolerance specified
+          var ref = value.split(':').map(Number);
+            var mean = ref[0];
+            var tolerance = ref[1];
+          return ((answer >= mean - tolerance) && (answer <= mean + tolerance)) ? credit : 0;
+        } else if (value.includes('..')) {
+          // range specified
+          var ref$1 = value.split('..').map(Number);
+            var valueMin = ref$1[0];
+            var valueMax = ref$1[1];
+          return ((answer >= valueMin) && (answer <= valueMax)) ? credit : 0;
+        }
+        return (Number(value) === answer) ? credit : 0;
+      });
+      return Math.max.apply(Math, optionScores);
     default:
       throw Error(("Grading is not implemented for type " + (this.type)));
   }
@@ -303,7 +341,11 @@ Block.TYPES = Object.freeze({
   TEXT: 'TEXT',
 });
 
-var Question = function Question () {};
+var Question = function Question(blocks) {
+  if ( blocks === void 0 ) blocks = [];
+
+  this.blocks = blocks;
+};
 
 Question.splitBlocksWithPredicate = function splitBlocksWithPredicate (question, predicate) {
   // Apply simple regexps first and then if candidate is not qualified - merge
@@ -348,8 +390,12 @@ Question.splitMaskedBlocks = function splitMaskedBlocks (question) {
   return Question.splitBlocksWithPredicate(question, Block.isValidMasked);
 };
 
-Question.mask = function mask (question) {
-  return Question.splitBlocks(question)
+Question.fromString = function fromString (question) {
+  return new Question(Question.splitBlocks(question));
+};
+
+Question.prototype.mask = function mask () {
+  return this.blocks
     .map(function (blockText) {
       try {
         return Block.fromString(blockText).toMaskedString();
@@ -359,6 +405,15 @@ Question.mask = function mask (question) {
       return blockText;
     })
     .join('');
+};
+
+Question.prototype.grade = function grade () {
+    var blockAnswers = [], len = arguments.length;
+    while ( len-- ) blockAnswers[ len ] = arguments[ len ];
+
+  var giftBlocks = this.blocks.filter(Block.isValid).map(Block.fromString);
+  var blockGrades = blockAnswers.map(function (answer, index) { return giftBlocks[index].grade(answer); });
+  return blockGrades.reduce(function (total, value) { return total + value; }, 0);
 };
 
 exports.Block = Block;
