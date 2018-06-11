@@ -197,6 +197,15 @@ test('grade', (t) => {
     st.equal(Block.fromString('{F}').grade(false), 1);
     st.end();
   });
+
+  t.test('should recognize correct answer INPUT', (st) => {
+    st.equal(Block.fromString('{=a}').grade('a'), 1);
+    st.equal(Block.fromString('{=a}').grade('b'), 0);
+    st.equal(Block.fromString('{=one =two}').grade('one'), 1);
+    st.equal(Block.fromString('{=one =two}').grade('two'), 1);
+    st.equal(Block.fromString('{=one =two}').grade('three'), 0);
+    st.end();
+  });
 });
 
 test('getFeedback', (t) => {

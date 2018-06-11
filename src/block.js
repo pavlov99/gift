@@ -189,9 +189,11 @@ export default class Block {
         }
         return 0;
       case Block.TYPES.BOOLEAN:
-        return 1 - (this.options[0].value ^ Boolean(answer));
+        return this.options[0].value ^ Boolean(answer) ? 0 : 1;
       case Block.TYPES.TEXT:
         return undefined;
+      case Block.TYPES.INPUT:
+        return this.options.some(o => o.value.trim() === answer) ? 1 : 0;
       default:
         throw Error(`Grading is not implemented for type ${this.type}`);
     }
