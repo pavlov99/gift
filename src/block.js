@@ -188,6 +188,10 @@ export default class Block {
           return option.credit || (option.prefix === '=' ? 1 : 0);
         }
         return 0;
+      case Block.TYPES.BOOLEAN:
+        return 1 - (this.options[0].value ^ Boolean(answer));
+      case Block.TYPES.TEXT:
+        return undefined;
       default:
         throw Error(`Grading is not implemented for type ${this.type}`);
     }

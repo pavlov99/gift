@@ -179,14 +179,22 @@ test('isValidMasked', (t) => {
 });
 
 test('grade', (t) => {
-  t.test('should recognize correct answer', (st) => {
+  t.test('should recognize correct answer RADIO', (st) => {
     st.equal(Block.fromString('{=yes ~no}').grade('yes'), 1);
     st.end();
   });
 
-  t.test('should recognize incorrect answer', (st) => {
+  t.test('should recognize incorrect answer RADIO', (st) => {
     st.equal(Block.fromString('{=yes ~no}').grade('no'), 0);
     st.equal(Block.fromString('{=yes ~no}').grade('maybe'), 0);
+    st.end();
+  });
+
+  t.test('should recognize correct answer BOOLEAN', (st) => {
+    st.equal(Block.fromString('{T}').grade(true), 1);
+    st.equal(Block.fromString('{T}').grade(false), 0);
+    st.equal(Block.fromString('{F}').grade(true), 0);
+    st.equal(Block.fromString('{F}').grade(false), 1);
     st.end();
   });
 });
