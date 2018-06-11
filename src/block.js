@@ -51,9 +51,15 @@ export default class Block {
     } else if (body.charAt(0) === '#') {
       // body has at least one character, otherwise it would be matched in TEXT block.
       if (BLOCK_NUMBER.test(body.slice(1))) {
+        const options = body.slice(1)
+          .split('=')
+          .map(s => s.trim())
+          .filter(Boolean)
+          .map(o => BlockOption.fromString(`=${o}`));
+
         return new Block({
           type: Block.TYPES.NUMBER,
-          options: [BlockOption.fromString(body.slice(1))],
+          options,
         });
       }
       throw new Error(`Invalid number block: ${block}`);
@@ -199,6 +205,22 @@ export default class Block {
         return undefined;
       case Block.TYPES.INPUT:
         return this.options.some(o => o.value.trim() === answer) ? 1 : 0;
+      case Block.TYPES.NUMBER:
+        answer = Number(answer);
+        const optionScores = this.options.map((o) => {
+          const { credit = 1, value } = o; // If credit is undefined, e.g. "=", set it to 1
+          if (value.includes(':')) {
+            // tolerance specified
+            const [mean, tolerance] = value.split(':').map(Number);
+            return ((answer >= mean - tolerance) && (answer <= mean + tolerance)) ? credit : 0;
+          } else if (value.includes('..')) {
+            // range specified
+            const [valueMin, valueMax] = value.split('..').map(Number);
+            return ((answer >= valueMin) && (answer <= valueMax)) ? credit : 0;
+          }
+          return (Number(value) === answer) ? credit : 0;
+        });
+        return Math.max(...optionScores);
       default:
         throw Error(`Grading is not implemented for type ${this.type}`);
     }

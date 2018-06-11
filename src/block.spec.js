@@ -219,6 +219,31 @@ test('grade', (t) => {
     st.equal(Block.fromString('{~%60%a ~%-80%b ~%60%c ~%-100%d}').grade(['b', 'd']), -1.8);
     st.end();
   });
+
+  t.test('should recognize correct answer NUMBER', (st) => {
+    st.equal(Block.fromString('{#1}').grade(0), 0);
+    st.equal(Block.fromString('{#1}').grade(1), 1);
+
+    // Tolerance
+    st.equal(Block.fromString('{#0:1}').grade(1), 1);
+    st.equal(Block.fromString('{#0:1}').grade(-1), 1);
+    st.equal(Block.fromString('{#0:1}').grade(2), 0);
+
+    // Range
+    st.equal(Block.fromString('{#-1..2}').grade(1), 1);
+    st.equal(Block.fromString('{#-1..2}').grade(2), 1);
+    st.equal(Block.fromString('{#-1..2}').grade(3), 0);
+
+    st.end();
+  });
+
+  t.test('should recognize correct answer NUMBER multiple options', (st) => {
+    const block = Block.fromString('{# =1822:0 =%50%1822:2}');
+    st.equal(block.grade(1822), 1);
+    st.equal(block.grade(1823), 0.5);
+    st.equal(block.grade(1825), 0);
+    st.end();
+  });
 });
 
 test('getFeedback', (t) => {
