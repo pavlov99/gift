@@ -206,6 +206,19 @@ test('grade', (t) => {
     st.equal(Block.fromString('{=one =two}').grade('three'), 0);
     st.end();
   });
+
+  t.test('should recognize correct answer CHECKBOX', (st) => {
+    st.equal(Block.fromString('{~a ~b}').grade(['a']), 0, 'option matched but credit is zero');
+    st.equal(Block.fromString('{~%100%a ~b}').grade(['a']), 1, 'option matched and credit is 100%');
+
+    st.equal(Block.fromString('{~%30%a ~b ~%70%c}').grade(['a']), 0.3);
+    st.equal(Block.fromString('{~%30%a ~b ~%70%c}').grade(['c']), 0.7);
+    st.equal(Block.fromString('{~%30%a ~b ~%70%c}').grade(['a', 'c']), 1);
+
+    st.equal(Block.fromString('{~%60%a ~%-80%b ~%60%c ~%-100%d}').grade(['a', 'c']), 1.2);
+    st.equal(Block.fromString('{~%60%a ~%-80%b ~%60%c ~%-100%d}').grade(['b', 'd']), -1.8);
+    st.end();
+  });
 });
 
 test('getFeedback', (t) => {

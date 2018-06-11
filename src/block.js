@@ -188,6 +188,11 @@ export default class Block {
           return option.credit || (option.prefix === '=' ? 1 : 0);
         }
         return 0;
+      case Block.TYPES.CHECKBOX:
+        // NOTE: answer should be an array
+        const optionCredits = new Map(this.options.map(o => [o.value, o.credit]));
+        const answerScores = answer.map(a => optionCredits.get(a) || 0);
+        return answerScores.reduce((total, val) => total + val, 0);
       case Block.TYPES.BOOLEAN:
         return this.options[0].value ^ Boolean(answer) ? 0 : 1;
       case Block.TYPES.TEXT:
