@@ -44,8 +44,26 @@ test('splitBlocks', (t) => {
   });
 
   t.test('should mask question', (st) => {
-    const question = 'What is 1 + 1? {~1 =2 =3}';
+    const question = 'What is 1 + 1? {~1 =2 ~3}';
     st.equal(Question.fromString(question).mask(), 'What is 1 + 1? {=1 =2 =3}');
+    st.end();
+  });
+
+  t.test('should grade questions RADIO with one gift block', (st) => {
+    const question = Question.fromString('What is 1 + 1? {~1 =2 ~3}');
+    st.equal(question.grade('1'), 0);
+    st.equal(question.grade('2'), 1);
+    st.equal(question.grade('4'), 0, 'give 0 scores for non-existing answer');
+    st.end();
+  });
+
+  t.test('should grade questions RADIO with two gift block', (st) => {
+    const question = Question.fromString('What is 1 + 1 {~1 =2 ~3}? How about 2 * 2? {~2 =4 ~8}');
+    st.equal(question.grade('2', '4'), 2);
+    st.equal(question.grade('2', '2'), 1, 'first correct, second wrong');
+    st.equal(question.grade('3', '4'), 1, 'first wrong, second correct');
+    st.equal(question.grade('1', '2'), 0, 'both wrong');
+    st.equal(question.grade('2'), 1, 'undefined answer to the second block');
     st.end();
   });
 });
