@@ -45,7 +45,7 @@ test('splitBlocks', (t) => {
 
   t.test('should mask question', (st) => {
     const question = 'What is 1 + 1? {~1 =2 =3}';
-    st.equal(Question.mask(question), 'What is 1 + 1? {=1 =2 =3}');
+    st.equal(Question.fromString(question).mask(), 'What is 1 + 1? {=1 =2 =3}');
     st.end();
   });
 });

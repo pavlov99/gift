@@ -1,6 +1,10 @@
 import Block from './block';
 
 export default class Question {
+  constructor(blocks = []) {
+    this.blocks = blocks;
+  }
+
   static splitBlocksWithPredicate(question, predicate) {
     // Apply simple regexps first and then if candidate is not qualified - merge
     // it with text on the left and right.
@@ -44,8 +48,12 @@ export default class Question {
     return Question.splitBlocksWithPredicate(question, Block.isValidMasked);
   }
 
-  static mask(question) {
-    return Question.splitBlocks(question)
+  static fromString(question) {
+    return new Question(Question.splitBlocks(question));
+  }
+
+  mask() {
+    return this.blocks
       .map((blockText) => {
         try {
           return Block.fromString(blockText).toMaskedString();
