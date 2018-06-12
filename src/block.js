@@ -226,6 +226,25 @@ export default class Block {
     }
   }
 
+  getMaxScore() {
+    switch (this.type) {
+      case Block.TYPES.RADIO:
+      case Block.TYPES.BOOLEAN:
+      case Block.TYPES.INPUT:
+      case Block.TYPES.NUMBER:
+        return 1;
+      case Block.TYPES.CHECKBOX:
+        return this.options.map(o => o.credit)
+          .filter(Boolean)
+          .filter(x => x > 0)
+          .reduce((total, value) => total + value, 0);
+      case Block.TYPES.TEXT:
+        return undefined;
+      default:
+        throw Error(`Max score is not implemented for type ${this.type}`);
+    }
+  }
+
   /**
    *
    * @param {(string|string[]))} answer answer to the question. Array in case

@@ -70,4 +70,10 @@ export default class Question {
     const blockGrades = blockAnswers.map((answer, index) => giftBlocks[index].grade(answer));
     return blockGrades.reduce((total, value) => total + value, 0);
   }
+
+  getMaxScore() {
+    return this.blocks.filter(Block.isValid).map(Block.fromString)
+      .map(block => block.getMaxScore())
+      .reduce((total, value) => total + value, 0);
+  }
 }

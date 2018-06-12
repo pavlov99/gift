@@ -246,6 +246,17 @@ test('grade', (t) => {
   });
 });
 
+test('getMaxScore', (t) => {
+  t.test('should getMax score', (st) => {
+    st.equal(Block.fromString('{T}').getMaxScore(), 1);
+    st.equal(Block.fromString('{=yes ~no}').getMaxScore(), 1);
+    st.equal(Block.fromString('{=input}').getMaxScore(), 1);
+    st.equal(Block.fromString('{~%50%a ~%50%b}').getMaxScore(), 1);
+    st.equal(Block.fromString('{# =1822:0 =%50%1822:2}').getMaxScore(), 1);
+    st.end();
+  });
+});
+
 test('getFeedback', (t) => {
   t.test('should get feedback', (st) => {
     const block = Block.fromString('{=yes #correct ~no #incorrect ~dont know}');
