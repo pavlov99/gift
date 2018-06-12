@@ -311,6 +311,25 @@ Block.prototype.grade = function grade (answer) {
   }
 };
 
+Block.prototype.getMaxScore = function getMaxScore () {
+  switch (this.type) {
+    case Block.TYPES.RADIO:
+    case Block.TYPES.BOOLEAN:
+    case Block.TYPES.INPUT:
+    case Block.TYPES.NUMBER:
+      return 1;
+    case Block.TYPES.CHECKBOX:
+      return this.options.map(function (o) { return o.credit; })
+        .filter(Boolean)
+        .filter(function (x) { return x > 0; })
+        .reduce(function (total, value) { return total + value; }, 0);
+    case Block.TYPES.TEXT:
+      return undefined;
+    default:
+      throw Error(("Max score is not implemented for type " + (this.type)));
+  }
+};
+
 /**
  *
  * @param {(string|string[]))} answer answer to the question. Array in case
@@ -414,6 +433,12 @@ Question.prototype.grade = function grade () {
   var giftBlocks = this.blocks.filter(Block.isValid).map(Block.fromString);
   var blockGrades = blockAnswers.map(function (answer, index) { return giftBlocks[index].grade(answer); });
   return blockGrades.reduce(function (total, value) { return total + value; }, 0);
+};
+
+Question.prototype.getMaxScore = function getMaxScore () {
+  return this.blocks.filter(Block.isValid).map(Block.fromString)
+    .map(function (block) { return block.getMaxScore(); })
+    .reduce(function (total, value) { return total + value; }, 0);
 };
 
 exports.Block = Block;
