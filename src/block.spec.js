@@ -213,7 +213,7 @@ test('grade', (t) => {
     // Range
     tt.equal(Block.fromString('{#-1..2}').grade(1), 1);
     tt.equal(Block.fromString('{#-1..2}').grade(2), 1);
-    tt.equal(Block.fromString('{#-1..2}').grade(3), 0);    
+    tt.equal(Block.fromString('{#-1..2}').grade(3), 0);
   });
 
   t.test('should recognize correct answer NUMBER multiple options', (tt) => {
