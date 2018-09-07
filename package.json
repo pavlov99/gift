@@ -15,15 +15,15 @@
     "test": "node --require reify -e \"$(find ./src -name '*\\.spec\\.js' -type f -exec echo \"require('{}');\" \\; | paste -s -d' ' -)\" | tap-mocha-reporter spec"
   },
   "devDependencies": {
-    "eslint": "^4.19.1",
-    "eslint-config-airbnb-base": "^12.1.0",
-    "eslint-plugin-import": "^2.10.0",
-    "reify": "^0.15.1",
-    "rollup": "^0.57.1",
-    "rollup-plugin-buble": "^0.19.2",
-    "rollup-plugin-uglify": "^3.0.0",
-    "tap-mocha-reporter": "^3.0.7",
-    "zora": "^2.0.1"
+    "eslint": "4.19.1",
+    "eslint-config-airbnb-base": "12.1.0",
+    "eslint-plugin-import": "2.10.0",
+    "reify": "0.15.1",
+    "rollup": "0.57.1",
+    "rollup-plugin-buble": "0.19.2",
+    "rollup-plugin-uglify": "3.0.0",
+    "tap-mocha-reporter": "3.0.7",
+    "zora": "2.0.1"
   },
   "files": [
     "dist"
