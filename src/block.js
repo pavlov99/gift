@@ -20,7 +20,7 @@ export default class Block {
     // negative lookbehind is not supported! Write tests to fail it.
     return block
       .trim()
-      .split(/([=~](?:(?:\\[=~#{}])|(?:[^=~]))+)/g)
+      .split(/((?<!\\)[=~](?:(?:\\[=~#\{\}])|(?:[^=~]))+)/y)
       .filter(x => x)
       .map(x => x.trim());
   }

@@ -19,7 +19,7 @@ export default class Question {
     let isValid = true;
 
     question
-      .split(/({[^}]*})/g)
+      .split(/(?<!\\)({(?:\\[{}~=#]|[^}])*})/g)
       .filter(x => x)
       .forEach((candidate) => {
         // If previous block is valid OR this is the first block, append candidate

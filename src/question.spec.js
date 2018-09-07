@@ -32,10 +32,10 @@ test('splitBlocks', (t) => {
       ['Escaped opened \\{ }'],
       ['Escaped closed { \\}'],
       ['Escaped both \\{ \\}'],
-      ['Escaped both ', '{ \\} \\{ }'],
+      ['Escaped both ', '{=\\} \\{ }'],
     ];
     questions.forEach((chunks) => {
-      tt.deepEqual(Question.splitBlocks(chunks.join('')), chunks);
+      tt.deepEqual(Question.splitBlocks(chunks.join('')), chunks, `Should handle ${chunks}`);
     });
   });
 
