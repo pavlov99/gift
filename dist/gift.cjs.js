@@ -100,7 +100,7 @@ Block.splitOptions = function splitOptions (block) {
   // negative lookbehind is not supported! Write tests to fail it.
   return block
     .trim()
-    .split(/([=~](?:(?:\\[=~#{}])|(?:[^=~]))+)/g)
+    .split(/((?<!\\)[=~](?:(?:\\[=~#\{\}])|(?:[^=~]))+)/g)
     .filter(function (x) { return x; })
     .map(function (x) { return x.trim(); });
 };
@@ -380,7 +380,7 @@ Question.splitBlocksWithPredicate = function splitBlocksWithPredicate (question,
   var isValid = true;
 
   question
-    .split(/({[^}]*})/g)
+    .split(/(?<!\\)({(?:\\[{}~=#]|[^}])*})/g)
     .filter(function (x) { return x; })
     .forEach(function (candidate) {
       // If previous block is valid OR this is the first block, append candidate
