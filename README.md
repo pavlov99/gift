@@ -2,6 +2,7 @@
 
 [![CircleCI](https://circleci.com/gh/pavlov99/gift/tree/master.svg?style=svg&circle-token=be34ec20970ec37168473206d036856c90701251)](https://circleci.com/gh/pavlov99/gift/tree/master)
 [![npm version](https://badge.fury.io/js/giftparser.svg)](https://www.npmjs.com/package/giftparser)
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/0be4d14cb0bd4f5bb95cadddb14be1a4)](https://www.codacy.com/app/pavlov99/gift?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=pavlov99/gift&amp;utm_campaign=Badge_Grade)
 
 A parser of assessment items written in [GIFT format](https://en.wikipedia.org/wiki/GIFT_(file_format)), implements [Moodle 3.4 spec](https://docs.moodle.org/34/en/GIFT_format).
 
