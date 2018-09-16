@@ -9,26 +9,26 @@ export default [
     output: {
       file: pkg.browser,
       format: 'umd',
-      name: 'gift'
+      name: 'gift',
     },
     plugins: [
       buble({
-        exclude: ['node_modules/**']
+        exclude: ['node_modules/**'],
       }),
       uglify({
-        "keep_classnames": true
-      })
-    ]
+        keep_classnames: true,
+      }),
+    ],
   }, {
     input: 'src/index.js',
     output: [
       { file: pkg.main, format: 'cjs' },
-      { file: pkg.module, format: 'es' }
+      { file: pkg.module, format: 'es' },
     ],
     plugins: [
       buble({
         exclude: ['node_modules/**']
       })
     ]
-  }
-]
+  },
+];
